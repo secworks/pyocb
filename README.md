@@ -1,5 +1,6 @@
 # pyocb
 A test implementation of OCB mode as specified in RFC 7253 in Python3.
+https://tools.ietf.org/html/rfc7253
 
 ## Status ##
 
