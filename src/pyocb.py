@@ -50,10 +50,14 @@ class OCB():
     #---------------------------------------------------------------
     # __init__()
     #---------------------------------------------------------------
-    def __init__(self, keybits=128, taglen=128):
-        self.keybits = keybits
+    def __init__(self, keylen=128, taglen=128):
+        if keylen not in [128, 256]:
+            print("Unsupported key length: %d bits" % keylen)
+            return
+        self.keylen = keylen
+
         if taglen not in [64, 96, 128]:
-            print("Unsupported tag length: %d" % taglen)
+            print("Unsupported tag length: %d bits" % taglen)
             return
         self.taglen = taglen
 
