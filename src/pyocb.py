@@ -50,8 +50,36 @@ class OCB():
     #---------------------------------------------------------------
     # __init__()
     #---------------------------------------------------------------
-    def __init__(self):
+    def __init__(self, keybits=128, taglen=128):
+        self.keybits = keybits
+        if taglen not in [64, 96, 128]:
+            print("Unsupported tag length: %d" % taglen)
+            return
+        self.taglen = taglen
+
+
+    #---------------------------------------------------------------
+    # hash()
+    #
+    # Hash associated data before encipher. Returns the
+    # 128 bit all zero vector when there is no associated data.
+    #---------------------------------------------------------------
+    def hash(self, key, associated_data):
+        return [0] * 128
+
+
+    #---------------------------------------------------------------
+    # encrypt()
+    #---------------------------------------------------------------
+    def encrypt(self, key, nonce, associated_data, plaintext):
         pass
+
+
+    #---------------------------------------------------------------
+    # decrypt()
+    #---------------------------------------------------------------
+    def decrypt(self, key, nonce, associated_data, ciphertext):
+        return False
 
 
 #-------------------------------------------------------------------
