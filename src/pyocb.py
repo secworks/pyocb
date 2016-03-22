@@ -43,23 +43,6 @@ import sys
 
 
 #-------------------------------------------------------------------
-# placeholder for AES class.
-#-------------------------------------------------------------------
-class AES():
-    def __init__(self, verbose = False):
-        pass
-
-    def encipher(self, key, block):
-        return block
-
-    def decipher(self, key, block):
-        return block
-
-    def __key_init(self, key):
-        pass
-
-
-#-------------------------------------------------------------------
 # OCB()
 #-------------------------------------------------------------------
 class OCB():
