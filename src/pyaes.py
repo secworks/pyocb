@@ -119,14 +119,16 @@ class AES():
             self.tmp_block1 = self._subbytes(self.tmp_block4)
             self.tmp_block2 = self._shiftrows(self.tmp_block1)
             self.tmp_block3 = self._mixcolumns(self.tmp_block2)
-            self.tmp_block4 = self._addroundkey(self.round_keys[i], self.tmp_block3)
+            self.tmp_block4 = self._addroundkey(self.round_keys[i],
+                                                    self.tmp_block3)
 
         # Final round
         if self.verbose:
             print("  Final round.")
         self.tmp_block1 = self._subbytes(self.tmp_block4)
         self.tmp_block2 = self._shiftrows(self.tmp_block1)
-        self.tmp_block3 = self._addroundkey(self.round_keys[self.num_rounds], self.tmp_block2)
+        self.tmp_block3 = self._addroundkey(self.round_keys[self.num_rounds],
+                                                self.tmp_block2)
 
         return self.tmp_block3
 
@@ -174,12 +176,11 @@ class AES():
     def self_test(self):
         pass
 
-
     #---------------------------------------------------------------
     #---------------------------------------------------------------
     def _subbytes(self, block):
-        pass
-
+        (w0, w1, w2, w3) = block
+        return (self.__substw(w0), self.__substw(w1), self._substw(w2), self._substw(w3))
 
     def _shiftrows(self, block):
         pass
@@ -192,6 +193,14 @@ class AES():
 
     def _expand_key(self, key):
         pass
+
+    def __substw(self, w):
+        (b0, b1, b2, b3) = self.__w2b(w)
+        return b2w(self.sbox[b0], self.sbox[b1], self.sbox[b2], self.sbox[b3])
+
+    def __w2b(self, w):
+        return (w >> 24, w >> 16 & 0xff, w >> 8 & 0xff, w & 0xff)
+
 
 #-------------------------------------------------------------------
 # main()
