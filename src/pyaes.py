@@ -235,7 +235,9 @@ class AES():
 
 
     def _addroundkey(self, round_key, block):
-        pass
+        (w0, w1, w2, w3) = block
+        (k0, k1, k2, k3) = round_key
+        return (w0 ^ k0, w1 ^ k1, w2 ^ k2, w3 ^ k3)
 
 
     def _expand_key(self, key):
