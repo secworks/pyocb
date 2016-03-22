@@ -242,12 +242,44 @@ class AES():
 
     def _expand_key(self, key):
         if len(key) == 4:
-            round_keys = key_gen128(key)
+            round_keys = self.__key_gen128(key)
             num_rounds = AES_128_ROUNDS
         else:
-            round_keys = key_gen256(key)
+            round_keys = self.__key_gen256(key)
             num_rounds = AES_256_ROUNDS
         return (round_keys, num_rounds)
+
+
+    def __key_gen128(self, key):
+        round_keys = []
+        round_keys.append(key)
+        for i in range(10):
+            round_keys.append(self.__next_128bit_key(round_keys[i],
+                                                         self.__get_rcon(i + 1)))
+        return round_keys
+
+
+    def __next_128bit_key(self, prev_rkey, rcon):
+        (w0, w1, w2, w3) = prev_key
+        rol = self.__rolx(w3, 8)
+        subst = self.__substw(rol)
+        t = subst ^ (rcon << 24)
+        k0 = w0 ^ t
+        k1 = w1 ^ w0 ^ t
+        k2 = w2 ^ w1 ^ w0 ^ t
+        k3 = w3 ^ w2 ^ w1 ^ w0 ^ t
+        return (k0, k1, k2, k3)
+
+
+    def __get_rcon(self, round):
+        rcon = 0x8d
+        for i in range(0, round):
+            rcon = ((rcon << 1) ^ (0x11b & - (rcon >> 7))) & 0xff
+        return rcon
+
+
+    def __rolx(self, w, x):
+        return ((w << x) | (w >> (32 - x))) & 0xffffffff
 
 
     def __substw(self, w):
