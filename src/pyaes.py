@@ -126,7 +126,7 @@ class AES():
     # __init__()
     #---------------------------------------------------------------
     def __init__(self, verbose = False):
-        self.verboe = verbose
+        self.verbose = verbose
 
 
     #---------------------------------------------------------------
@@ -137,33 +137,30 @@ class AES():
     def encipher(self, key, block):
         if self.verbose:
             print("AES encipher operation.")
-        self.tmp_block = block[:]
-        (self.round_keys, self.num_rounds) = self._expand_key(key)
+        tmp_block = block[:]
+        (round_keys, num_rounds) = self._expand_key(key)
 
         # Init round
         if self.verbose:
             print("Initial AddRoundKeys round.")
-        self.tmp_block4 = self._addroundkey(round_keys[0], block)
+        tmp_block4 = self._addroundkey(round_keys[0], block)
 
         # Main rounds
-        for self.i in range(1 , (self.num_rounds)):
+        for i in range(1 , (num_rounds)):
             if self.verbose:
-                print("Round %02d" % self.i)
-            self.tmp_block1 = self._subbytes(self.tmp_block4)
-            self.tmp_block2 = self._shiftrows(self.tmp_block1)
-            self.tmp_block3 = self._mixcolumns(self.tmp_block2)
-            self.tmp_block4 = self._addroundkey(self.round_keys[i],
-                                                    self.tmp_block3)
+                print("Round %02d" % i)
+            tmp_block1 = self._subbytes(tmp_block4)
+            tmp_block2 = self._shiftrows(tmp_block1)
+            tmp_block3 = self._mixcolumns(tmp_block2)
+            tmp_block4 = self._addroundkey(round_keys[i], tmp_block3)
 
         # Final round
         if self.verbose:
             print("  Final round.")
-        self.tmp_block1 = self._subbytes(self.tmp_block4)
-        self.tmp_block2 = self._shiftrows(self.tmp_block1)
-        self.tmp_block3 = self._addroundkey(self.round_keys[self.num_rounds],
-                                                self.tmp_block2)
-
-        return self.tmp_block3
+        tmp_block1 = self._subbytes(tmp_block4)
+        tmp_block2 = self._shiftrows(tmp_block1)
+        tmp_block3 = self._addroundkey(round_keys[num_rounds], tmp_block2)
+        return tmp_block3
 
 
     #---------------------------------------------------------------
@@ -207,13 +204,22 @@ class AES():
     # test vectors.
     #---------------------------------------------------------------
     def self_test(self):
-        pass
+        nist_aes128_key = (0x2b7e1516, 0x28aed2a6, 0xabf71588, 0x09cf4f3c)
+        nist_plaintext0 = (0x6bc1bee2, 0x2e409f96, 0xe93d7e11, 0x7393172a)
+        nist_exp128_0 = (0x3ad77bb4, 0x0d7a3660, 0xa89ecaf3, 0x2466ef97)
+        result = self.encipher(nist_aes128_key, nist_plaintext0)
+        if result == nist_exp128_0:
+            print("128 bit key mode ok")
+        else:
+            print("Error, expected: ", nist_exp128_0)
+            print("Got:             ", result)
+
 
     #---------------------------------------------------------------
     #---------------------------------------------------------------
     def _subbytes(self, block):
         (w0, w1, w2, w3) = block
-        return (self.__substw(w0), self.__substw(w1), self._substw(w2), self._substw(w3))
+        return (self.__substw(w0), self.__substw(w1), self.__substw(w2), self.__substw(w3))
 
 
     def _shiftrows(self, block):
@@ -243,10 +249,10 @@ class AES():
     def _expand_key(self, key):
         if len(key) == 4:
             round_keys = self.__key_gen128(key)
-            num_rounds = AES_128_ROUNDS
+            num_rounds = self.AES_128_ROUNDS
         else:
             round_keys = self.__key_gen256(key)
-            num_rounds = AES_256_ROUNDS
+            num_rounds = self.AES_256_ROUNDS
         return (round_keys, num_rounds)
 
 
@@ -259,7 +265,7 @@ class AES():
         return round_keys
 
 
-    def __next_128bit_key(self, prev_rkey, rcon):
+    def __next_128bit_key(self, prev_key, rcon):
         (w0, w1, w2, w3) = prev_key
         rol = self.__rolx(w3, 8)
         subst = self.__substw(rol)
@@ -284,10 +290,10 @@ class AES():
 
     def __substw(self, w):
         (b0, b1, b2, b3) = self.__w2b(w)
-        return b2w(self.sbox[b0], self.sbox[b1], self.sbox[b2], self.sbox[b3])
+        return self.__b2w(self.sbox[b0], self.sbox[b1], self.sbox[b2], self.sbox[b3])
 
 
-    def __mixw(c):
+    def __mixw(self, w):
         (b0, b1, b2, b3) = self.__w2b(w)
         mb0 = self.__gm2(b0) ^ self.__gm3(b1) ^ b2      ^ b3
         mb1 = b0      ^ self.__gm2(b1) ^ self.__gm3(b2) ^ b3
@@ -308,7 +314,7 @@ class AES():
         return ((b << 1) ^ (0x1b & ((b >> 7) * 0xff))) & 0xff
 
 
-    def __gm3(b):
+    def __gm3(self, b):
         return self.__gm2(b) ^ b
 
 
