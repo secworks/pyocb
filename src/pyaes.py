@@ -183,7 +183,8 @@ class AES():
         return (self.__substw(w0), self.__substw(w1), self._substw(w2), self._substw(w3))
 
     def _shiftrows(self, block):
-        pass
+        (c0, c1, c2, c3) = block
+        return (self.__mixw(c0), self.__mixw(c1), self.__mixw(c2), self.__mixw(c3))
 
     def _mixcolumns(self, block):
         pass
@@ -198,9 +199,22 @@ class AES():
         (b0, b1, b2, b3) = self.__w2b(w)
         return b2w(self.sbox[b0], self.sbox[b1], self.sbox[b2], self.sbox[b3])
 
+    def __mixw(c):
+        (b0, b1, b2, b3) = self.__w2b(w)
+        mb0 = self.__gm2(b0) ^ self.__gm3(b1) ^ b2      ^ b3
+        mb1 = b0      ^ self.__gm2(b1) ^ self.__gm3(b2) ^ b3
+        mb2 = b0      ^ b1      ^ self.__gm2(b2) ^ self.__gm3(b3)
+        mb3 = self.__gm3(b0) ^ b1      ^ b2      ^ self.__gm2(b3)
+        return self.__b2w(mb0, mb1, mb2, mb3)
+
     def __w2b(self, w):
         return (w >> 24, w >> 16 & 0xff, w >> 8 & 0xff, w & 0xff)
 
+    def __gm2(self, b):
+        return ((b << 1) ^ (0x1b & ((b >> 7) * 0xff))) & 0xff
+
+    def __gm3(b):
+        return self.__gm2(b) ^ b
 
 #-------------------------------------------------------------------
 # main()
