@@ -241,7 +241,13 @@ class AES():
 
 
     def _expand_key(self, key):
-        pass
+        if len(key) == 4:
+            round_keys = key_gen128(key)
+            num_rounds = AES_128_ROUNDS
+        else:
+            round_keys = key_gen256(key)
+            num_rounds = AES_256_ROUNDS
+        return (round_keys, num_rounds)
 
 
     def __substw(self, w):
