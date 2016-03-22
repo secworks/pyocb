@@ -43,6 +43,23 @@ import sys
 
 
 #-------------------------------------------------------------------
+# placeholder for AES class.
+#-------------------------------------------------------------------
+class AES():
+    def __init__(self, verbose = False):
+        pass
+
+    def encipher(self, key, block):
+        return block
+
+    def decipher(self, key, block):
+        return block
+
+    def __key_init(self, key):
+        pass
+
+
+#-------------------------------------------------------------------
 # OCB()
 #-------------------------------------------------------------------
 class OCB():
@@ -50,7 +67,10 @@ class OCB():
     #---------------------------------------------------------------
     # __init__()
     #---------------------------------------------------------------
-    def __init__(self, keylen=128, taglen=128):
+    def __init__(self, keylen=128, taglen=128, verbose = False):
+        self.aes = AES()
+        self.verbose = verbose
+
         if keylen not in [128, 256]:
             print("Unsupported key length: %d bits" % keylen)
             return
@@ -69,7 +89,7 @@ class OCB():
     # 128 bit all zero vector when there is no associated data.
     #---------------------------------------------------------------
     def hash(self, key, associated_data):
-        return [0] * 128
+        L_star = aes.encipher(key, my_aes, [0] * 128)
 
 
     #---------------------------------------------------------------
