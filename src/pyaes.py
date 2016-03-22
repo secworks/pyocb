@@ -102,21 +102,20 @@ class AES():
     # the given 128 bit block.
     #---------------------------------------------------------------
     def encipher(self, key, block):
+        if self.verbose:
+            print("AES encipher operation.")
         self.tmp_block = block[:]
         (self.round_keys, self.num_rounds) = self._expand_key(key)
 
         # Init round
         if self.verbose:
-            print("  Initial AddRoundKeys round.")
+            print("Initial AddRoundKeys round.")
         self.tmp_block4 = self._addroundkey(round_keys[0], block)
 
         # Main rounds
         for self.i in range(1 , (self.num_rounds)):
             if self.verbose:
-                print("")
-                print("  Round %02d" % self.i)
-                print("  ---------")
-
+                print("Round %02d" % self.i)
             self.tmp_block1 = self._subbytes(self.tmp_block4)
             self.tmp_block2 = self._shiftrows(self.tmp_block1)
             self.tmp_block3 = self._mixcolumns(self.tmp_block2)
@@ -133,17 +132,51 @@ class AES():
 
 
     #---------------------------------------------------------------
+    # decipher()
     #---------------------------------------------------------------
     def decipher(self, key, block):
-        return block
+        if self.verbose:
+            print("AES decipher operation.")
+        self.tmp_block = block[:]
+        (self.round_keys, self.num_rounds) = self._expand_key(key)
+
+        # Initial round
+        if self.verbose:
+            print("Initial, partial round.")
+        self.tmp_block1 = self._addroundkey(self.round_keys[len(self.round_keys) - 1],
+                                                self.tmp_block)
+        self.tmp_block2 = self._inv_shiftrows(self.tmp_block1)
+        self.tmp_block4 = self._inv_subbytes(self.tmp_block2)
+
+        # Main rounds
+        for i in range(1 , (num_rounds)):
+            if self.verbose:
+                print("Round %02d" % self.i)
+            self.tmp_block1 = self._addroundkey(self.round_keys[(len(self.round_keys) - i - 1)],
+                                                    self.tmp_block4)
+            self.tmp_block2 = self._inv_mixcolumns(self.tmp_block1)
+            self.tmp_block3 = self._inv_shiftrows(self.tmp_block2)
+            self.tmp_block4 = self._inv_subbytes(self.tmp_block3)
+
+        # Final round
+        print("Final AddRoundKeys round.")
+        self.res_block = self._addroundkey(self.round_keys[0], self.tmp_block4)
+
+        return res_block
 
 
     #---------------------------------------------------------------
+    # self_test()
+    #
+    # Perform self test of AES functionality using NIST
+    # test vectors.
     #---------------------------------------------------------------
     def self_test(self):
         pass
 
 
+    #---------------------------------------------------------------
+    #---------------------------------------------------------------
     def _subbytes(self, block):
         pass
 
