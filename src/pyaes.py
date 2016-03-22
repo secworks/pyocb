@@ -89,22 +89,76 @@ class AES():
                 0xa0, 0xe0, 0x3b, 0x4d, 0xae, 0x2a, 0xf5, 0xb0, 0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61,
                 0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d]
 
+    #---------------------------------------------------------------
+    # __init__()
+    #---------------------------------------------------------------
     def __init__(self, verbose = False):
-        pass
+        self.verboe = verbose
 
+
+    #---------------------------------------------------------------
+    # encipher()
+    # Given a 128 or 256 bit key will perform AES encipher on
+    # the given 128 bit block.
+    #---------------------------------------------------------------
     def encipher(self, key, block):
-        self.keylen = keylen
+        self.tmp_block = block[:]
+        (self.round_keys, self.num_rounds) = self._expand_key(key)
 
+        # Init round
+        if self.verbose:
+            print("  Initial AddRoundKeys round.")
+        self.tmp_block4 = self._addroundkey(round_keys[0], block)
+
+        # Main rounds
+        for self.i in range(1 , (self.num_rounds)):
+            if self.verbose:
+                print("")
+                print("  Round %02d" % self.i)
+                print("  ---------")
+
+            self.tmp_block1 = self._subbytes(self.tmp_block4)
+            self.tmp_block2 = self._shiftrows(self.tmp_block1)
+            self.tmp_block3 = self._mixcolumns(self.tmp_block2)
+            self.tmp_block4 = self._addroundkey(self.round_keys[i], self.tmp_block3)
+
+        # Final round
+        if self.verbose:
+            print("  Final round.")
+        self.tmp_block1 = self._subbytes(self.tmp_block4)
+        self.tmp_block2 = self._shiftrows(self.tmp_block1)
+        self.tmp_block3 = self._addroundkey(self.round_keys[self.num_rounds], self.tmp_block2)
+
+        return self.tmp_block3
+
+
+    #---------------------------------------------------------------
+    #---------------------------------------------------------------
     def decipher(self, key, block):
         return block
 
+
+    #---------------------------------------------------------------
+    #---------------------------------------------------------------
     def self_test(self):
         pass
 
-    def __key_init(self, key):
-        if len(key) not in [128, 256]:
-            raise Exception("Size of key not supported.")
 
+    def _subbytes(self, block):
+        pass
+
+
+    def _shiftrows(self, block):
+        pass
+
+    def _mixcolumns(self, block):
+        pass
+
+    def _addroundkey(self, round_key, block):
+        pass
+
+    def _expand_key(self, key):
+        pass
 
 #-------------------------------------------------------------------
 # main()
