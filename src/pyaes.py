@@ -183,11 +183,20 @@ class AES():
         return (self.__substw(w0), self.__substw(w1), self._substw(w2), self._substw(w3))
 
     def _shiftrows(self, block):
-        (c0, c1, c2, c3) = block
-        return (self.__mixw(c0), self.__mixw(c1), self.__mixw(c2), self.__mixw(c3))
+        (w0, w1, w2, w3) = block
+        c0 = self.__w2b(w0)
+        c1 = self.__w2b(w1)
+        c2 = self.__w2b(w2)
+        c3 = self.__w2b(w3)
+        ws0 = self.__b2w(c0[0], c1[1],  c2[2],  c3[3])
+        ws1 = self.__b2w(c1[0], c2[1],  c3[2],  c0[3])
+        ws2 = self.__b2w(c2[0], c3[1],  c0[2],  c1[3])
+        ws3 = self.__b2w(c3[0], c0[1],  c1[2],  c2[3])
+        return (ws0, ws1, ws2, ws3)
 
     def _mixcolumns(self, block):
-        pass
+        (c0, c1, c2, c3) = block
+        return (self.__mixw(c0), self.__mixw(c1), self.__mixw(c2), self.__mixw(c3))
 
     def _addroundkey(self, round_key, block):
         pass
@@ -206,6 +215,9 @@ class AES():
         mb2 = b0      ^ b1      ^ self.__gm2(b2) ^ self.__gm3(b3)
         mb3 = self.__gm3(b0) ^ b1      ^ b2      ^ self.__gm2(b3)
         return self.__b2w(mb0, mb1, mb2, mb3)
+
+    def __b2w(self, b0, b1, b2, b3):
+        return (b0 << 24) + (b1 << 16) + (b2 << 8) + b3
 
     def __w2b(self, w):
         return (w >> 24, w >> 16 & 0xff, w >> 8 & 0xff, w & 0xff)
