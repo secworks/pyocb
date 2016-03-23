@@ -4,9 +4,12 @@
 #
 # pyocb.py
 # --------
+# Functional model of OCB mode. The model tries fo follow the
+# description in RFC7253. The big difference is that support for
+# 102 bit keys are not included.
 #
 #
-# Copyright (c) 2016 Secworks Sweden AB
+# Copyright (c) 2016 Assured AB
 # Author: Joachim Strömbergson
 #
 # Redistribution and use in source and binary forms, with or
@@ -91,9 +94,12 @@ class OCB():
 
 
 #-------------------------------------------------------------------
-# main()
+# test_ocb()
+#
+# Run tests using test vectors from RFC7253.
+# https://tools.ietf.org/html/rfc7253
 #-------------------------------------------------------------------
-def main():
+def test_ocb():
     print("Testing the OCB implementation")
     print("------------------------------\n")
 
@@ -107,7 +113,7 @@ def main():
 #-------------------------------------------------------------------
 if __name__=="__main__":
     # Run the main function.
-    sys.exit(main())
+    sys.exit(test_ocb())
 
 #=======================================================================
 # EOF pyocb.py
