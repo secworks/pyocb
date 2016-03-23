@@ -229,6 +229,7 @@ class AES():
 
 
     #---------------------------------------------------------------
+    # Internal methods.
     #---------------------------------------------------------------
     def _subbytes(self, block):
         (w0, w1, w2, w3) = block
@@ -283,6 +284,54 @@ class AES():
         rol = self.__rolx(w3, 8)
         subst = self.__substw(rol)
         t = subst ^ (rcon << 24)
+        k0 = w0 ^ t
+        k1 = w1 ^ w0 ^ t
+        k2 = w2 ^ w1 ^ w0 ^ t
+        k3 = w3 ^ w2 ^ w1 ^ w0 ^ t
+        return (k0, k1, k2, k3)
+
+
+    def __key_gen256(self, key):
+        round_keys = []
+        (k0, k1, k2, k3, k4, k5, k6, k7) = key
+        round_keys.append((k0, k1, k2, k3))
+        round_keys.append((k4, k5, k6, k7))
+
+        j = 1
+        for i in range(0, (self.AES_256_ROUNDS - 2), 2):
+            k = self.__next_256it_key_a(round_keys[i], round_keys[i + 1],
+                                            self.__get_rcon(j))
+            round_keys.append(k)
+            k = self.__next_256it_key_b(round_keys[i + 1], round_keys[i + 2])
+            round_keys.append(k)
+            j += 1
+
+        # One final key needs to be generated.
+        k = self.__next_256it_key_a(round_keys[12], round_keys[13],
+                                        self.__get_rcon(7))
+        round_keys.append(k)
+        return round_keys
+
+
+    def __next_256it_key_a(self, key0, key1, rcon):
+        (w0, w1, w2, w3) = key0
+        (w4, w5, w6, w7) = key1
+
+        sw = self.__substw(self.__rolx(w7, 8))
+        rw = (rcon << 24)
+        t = sw ^ rw
+
+        k0 = w0 ^ t
+        k1 = w1 ^ w0 ^ t
+        k2 = w2 ^ w1 ^ w0 ^ t
+        k3 = w3 ^ w2 ^ w1 ^ w0 ^ t
+        return (k0, k1, k2, k3)
+
+
+    def __next_256it_key_b(self, key0, key1):
+        (w0, w1, w2, w3) = key0
+        (w4, w5, w6, w7) = key1
+        t = self.__substw(w7)
         k0 = w0 ^ t
         k1 = w1 ^ w0 ^ t
         k2 = w2 ^ w1 ^ w0 ^ t
