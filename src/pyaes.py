@@ -205,14 +205,27 @@ class AES():
     #---------------------------------------------------------------
     def self_test(self):
         nist_aes128_key = (0x2b7e1516, 0x28aed2a6, 0xabf71588, 0x09cf4f3c)
+        nist_aes256_key = (0x603deb10, 0x15ca71be, 0x2b73aef0, 0x857d7781,
+                            0x1f352c07, 0x3b6108d7, 0x2d9810a3, 0x0914dff4)
         nist_plaintext0 = (0x6bc1bee2, 0x2e409f96, 0xe93d7e11, 0x7393172a)
         nist_exp128_0 = (0x3ad77bb4, 0x0d7a3660, 0xa89ecaf3, 0x2466ef97)
+        nist_exp256_0 = (0xf3eed1bd, 0xb5d2a03c, 0x064b5a7e, 0x3db181f8)
+
+        print("Encipher tests.")
         result = self.encipher(nist_aes128_key, nist_plaintext0)
         if result == nist_exp128_0:
             print("128 bit key mode ok")
         else:
             print("Error, expected: ", nist_exp128_0)
             print("Got:             ", result)
+
+        result = self.encipher(nist_aes256_key, nist_plaintext0)
+        if result == nist_exp256_0:
+            print("256 bit key mode ok")
+        else:
+            print("Error, expected: ", nist_exp128_0)
+            print("Got:             ", result)
+        print("")
 
 
     #---------------------------------------------------------------
