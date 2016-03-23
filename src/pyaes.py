@@ -169,31 +169,28 @@ class AES():
     def decipher(self, key, block):
         if self.verbose:
             print("AES decipher operation.")
-        self.tmp_block = block[:]
-        (self.round_keys, self.num_rounds) = self._expand_key(key)
+        tmp_block = block[:]
+        (round_keys, num_rounds) = self._expand_key(key)
 
         # Initial round
         if self.verbose:
             print("Initial, partial round.")
-        self.tmp_block1 = self._addroundkey(self.round_keys[len(self.round_keys) - 1],
-                                                self.tmp_block)
-        self.tmp_block2 = self._inv_shiftrows(self.tmp_block1)
-        self.tmp_block4 = self._inv_subbytes(self.tmp_block2)
+        tmp_block1 = self._addroundkey(round_keys[len(round_keys) - 1], tmp_block)
+        tmp_block2 = self._inv_shiftrows(tmp_block1)
+        tmp_block4 = self._inv_subbytes(tmp_block2)
 
         # Main rounds
         for i in range(1 , (num_rounds)):
             if self.verbose:
-                print("Round %02d" % self.i)
-            self.tmp_block1 = self._addroundkey(self.round_keys[(len(self.round_keys) - i - 1)],
-                                                    self.tmp_block4)
-            self.tmp_block2 = self._inv_mixcolumns(self.tmp_block1)
-            self.tmp_block3 = self._inv_shiftrows(self.tmp_block2)
-            self.tmp_block4 = self._inv_subbytes(self.tmp_block3)
+                print("Round %02d" % i)
+            tmp_block1 = self._addroundkey(round_keys[(len(round_keys) - i - 1)], tmp_block4)
+            tmp_block2 = self._inv_mixcolumns(tmp_block1)
+            tmp_block3 = self._inv_shiftrows(tmp_block2)
+            tmp_block4 = self._inv_subbytes(tmp_block3)
 
         # Final round
         print("Final AddRoundKeys round.")
-        self.res_block = self._addroundkey(self.round_keys[0], self.tmp_block4)
-
+        res_block = self._addroundkey(round_keys[0], tmp_block4)
         return res_block
 
 
@@ -247,7 +244,14 @@ class AES():
     #---------------------------------------------------------------
     def _subbytes(self, block):
         (w0, w1, w2, w3) = block
-        return (self.__substw(w0), self.__substw(w1), self.__substw(w2), self.__substw(w3))
+        return (self.__substw(w0), self.__substw(w1),
+                    self.__substw(w2), self.__substw(w3))
+
+
+    def _inv_subbytes(self, block):
+        (w0, w1, w2, w3) = block
+        return (self.__inv_substw(w0), self.__inv_substw(w1),
+                    self.__inv_substw(w2), self.__inv_substw(w3))
 
 
     def _shiftrows(self, block):
@@ -263,9 +267,27 @@ class AES():
         return (ws0, ws1, ws2, ws3)
 
 
+    def _inv_shiftrows(self, block):
+        (w0, w1, w2, w3) = block
+        c0 = self.__w2b(w0)
+        c1 = self.__w2b(w1)
+        c2 = self.__w2b(w2)
+        c3 = self.__w2b(w3)
+        ws0 = self.__b2w(c0[0], c3[1],  c2[2],  c1[3])
+        ws1 = self.__b2w(c1[0], c0[1],  c3[2],  c2[3])
+        ws2 = self.__b2w(c2[0], c1[1],  c0[2],  c3[3])
+        ws3 = self.__b2w(c3[0], c2[1],  c1[2],  c0[3])
+        return (ws0, ws1, ws2, ws3)
+
+
     def _mixcolumns(self, block):
         (c0, c1, c2, c3) = block
         return (self.__mixw(c0), self.__mixw(c1), self.__mixw(c2), self.__mixw(c3))
+
+
+    def _inv_mixcolumns(self, block):
+        (c0, c1, c2, c3) = block
+        return (self.__inv_mixw(c0), self.__inv_mixw(c1), self.__inv_mixw(c2), self.__inv_mixw(c3))
 
 
     def _addroundkey(self, round_key, block):
@@ -363,7 +385,14 @@ class AES():
 
     def __substw(self, w):
         (b0, b1, b2, b3) = self.__w2b(w)
-        return self.__b2w(self.sbox[b0], self.sbox[b1], self.sbox[b2], self.sbox[b3])
+        return self.__b2w(self.sbox[b0], self.sbox[b1],
+                              self.sbox[b2], self.sbox[b3])
+
+
+    def __inv_substw(self, w):
+        (b0, b1, b2, b3) = self.__w2b(w)
+        return self.__b2w(self.inv_sbox[b0], self.inv_sbox[b1],
+                              self.inv_sbox[b2], self.inv_sbox[b3])
 
 
     def __mixw(self, w):
@@ -372,6 +401,15 @@ class AES():
         mb1 = b0      ^ self.__gm2(b1) ^ self.__gm3(b2) ^ b3
         mb2 = b0      ^ b1      ^ self.__gm2(b2) ^ self.__gm3(b3)
         mb3 = self.__gm3(b0) ^ b1      ^ b2      ^ self.__gm2(b3)
+        return self.__b2w(mb0, mb1, mb2, mb3)
+
+
+    def __inv_mixw(self, w):
+        (b0, b1, b2, b3) = self.__w2b(w)
+        mb0 = self.__gm14(b0) ^ self.__gm11(b1) ^ self.__gm13(b2) ^ self.__gm09(b3)
+        mb1 = self.__gm09(b0) ^ self.__gm14(b1) ^ self.__gm11(b2) ^ self.__gm13(b3)
+        mb2 = self.__gm13(b0) ^ self.__gm09(b1) ^ self.__gm14(b2) ^ self.__gm11(b3)
+        mb3 = self.__gm11(b0) ^ self.__gm13(b1) ^ self.__gm09(b2) ^ self.__gm14(b3)
         return self.__b2w(mb0, mb1, mb2, mb3)
 
 
@@ -389,6 +427,30 @@ class AES():
 
     def __gm3(self, b):
         return self.__gm2(b) ^ b
+
+
+    def __gm4(self, b):
+        return self.__gm2(self.__gm2(b))
+
+
+    def __gm8(self, b):
+        return self.__gm2(self.__gm4(b))
+
+
+    def __gm09(self, b):
+        return self.__gm8(b) ^ b
+
+
+    def __gm11(self, b):
+        return self.__gm8(b) ^ self.__gm2(b) ^ b
+
+
+    def __gm13(self, b):
+        return self.__gm8(b) ^ self.__gm4(b) ^ b
+
+
+    def __gm14(self, b):
+        return self.__gm8(b) ^ self.__gm4(b) ^ self.__gm2(b)
 
 
 #-------------------------------------------------------------------
