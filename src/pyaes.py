@@ -218,12 +218,26 @@ class AES():
         else:
             print("Error, expected: ", nist_exp128_0)
             print("Got:             ", result)
-
         result = self.encipher(nist_aes256_key, nist_plaintext0)
         if result == nist_exp256_0:
             print("256 bit key mode ok")
         else:
             print("Error, expected: ", nist_exp128_0)
+            print("Got:             ", result)
+        print("")
+
+        print("Decipher tests.")
+        result = self.decipher(nist_aes128_key, nist_exp128_0)
+        if result == nist_plaintext0:
+            print("128 bit key mode ok")
+        else:
+            print("Error, expected: ", nist_plaintext0)
+            print("Got:             ", result)
+        result = self.encipher(nist_aes256_key, nist_exp256_0)
+        if result == nist_plaintext0:
+            print("256 bit key mode ok")
+        else:
+            print("Error, expected: ", nist_plaintext0)
             print("Got:             ", result)
         print("")
 
