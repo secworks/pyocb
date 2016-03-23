@@ -274,8 +274,7 @@ class AES():
         round_keys = []
         round_keys.append(key)
         for i in range(10):
-            round_keys.append(self.__next_128bit_key(round_keys[i],
-                                                         self.__get_rcon(i + 1)))
+            round_keys.append(self.__next_128bit_key(round_keys[i], self.__get_rcon(i + 1)))
         return round_keys
 
 
@@ -299,16 +298,14 @@ class AES():
 
         j = 1
         for i in range(0, (self.AES_256_ROUNDS - 2), 2):
-            k = self.__next_256it_key_a(round_keys[i], round_keys[i + 1],
-                                            self.__get_rcon(j))
+            k = self.__next_256it_key_a(round_keys[i], round_keys[i + 1], self.__get_rcon(j))
             round_keys.append(k)
             k = self.__next_256it_key_b(round_keys[i + 1], round_keys[i + 2])
             round_keys.append(k)
             j += 1
 
         # One final key needs to be generated.
-        k = self.__next_256it_key_a(round_keys[12], round_keys[13],
-                                        self.__get_rcon(7))
+        k = self.__next_256it_key_a(round_keys[12], round_keys[13], self.__get_rcon(7))
         round_keys.append(k)
         return round_keys
 
