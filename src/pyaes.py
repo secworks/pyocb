@@ -189,9 +189,7 @@ class AES():
             tmp_block4 = self._inv_subbytes(tmp_block3)
 
         # Final round
-        print("Final AddRoundKeys round.")
-        res_block = self._addroundkey(round_keys[0], tmp_block4)
-        return res_block
+        return self._addroundkey(round_keys[0], tmp_block4)
 
 
     #---------------------------------------------------------------
@@ -230,7 +228,7 @@ class AES():
         else:
             print("Error, expected: ", nist_plaintext0)
             print("Got:             ", result)
-        result = self.encipher(nist_aes256_key, nist_exp256_0)
+        result = self.decipher(nist_aes256_key, nist_exp256_0)
         if result == nist_plaintext0:
             print("256 bit key mode ok")
         else:
