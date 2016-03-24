@@ -50,6 +50,8 @@ from pyaes import AES
 # OCB()
 #-------------------------------------------------------------------
 class OCB():
+    BLOCKSIZE = 128
+    LCACHE = 1
 
     #---------------------------------------------------------------
     # __init__()
@@ -57,6 +59,7 @@ class OCB():
     def __init__(self, keylen=128, taglen=128, verbose = False):
         self.aes = AES()
         self.verbose = verbose
+        self.L = [[0]] * self.LCACHE
 
         if keylen not in [128, 256]:
             print("Unsupported key length: %d bits" % keylen)
@@ -76,14 +79,24 @@ class OCB():
     # 128 bit all zero vector when there is no associated data.
     #---------------------------------------------------------------
     def hash(self, key, associated_data):
-        L_star = aes.encipher(key, my_aes, [0] * 128)
+        L_star = self.aes.encipher(key, [0] * 128)
+        self._init_L(L_star)
+
+        m = int(len(associated_data) / self.BLOCKSIZE)
+        hsum = [0] * 128
+        offset = [0] * 128
+
+        for i in range((m - 1)):
+            offset = offset ^ self._get_L(i)
+            ai = associated_data[(i * self.blocksize) : ((i + 1) * self.BLOCKSIZE)]
+            hsum = hsum ^ self.aes.encipher(key, (offset ^ ai))
 
 
     #---------------------------------------------------------------
     # encrypt()
     #---------------------------------------------------------------
     def encrypt(self, key, nonce, associated_data, plaintext):
-        pass
+        hsum = self.hash(self, key, associated_data)
 
 
     #---------------------------------------------------------------
@@ -91,6 +104,30 @@ class OCB():
     #---------------------------------------------------------------
     def decrypt(self, key, nonce, associated_data, ciphertext):
         return False
+
+
+    def _calc_L_i(self, block, i):
+        pass
+
+
+    def _double(self, prev_l):
+        return prev_l << 1
+
+
+    def _init_L(self, star):
+        l = self._double(self._double(star))
+        for i in range(self.lcache):
+            self.L[i] = l
+            l = self._double(l)
+
+
+    def _get_L(i):
+        # We need to find number of trailing zeros here an use as index.
+        if i <= self.lcache:
+            return self.L[i]
+        else:
+            j = i - 1
+            l = self.L[(self.lcache - 1)]
 
 
 #-------------------------------------------------------------------
